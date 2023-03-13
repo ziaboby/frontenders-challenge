@@ -37,41 +37,88 @@
 
         if (CANVAS.getContext) {
           const STATE_PIXEL_DIMENSIONS = statePixelsDimensions(),
-            STATE_SELECTED_PIXELS = stateDrawnPixels();
-          const CONTEXT = CANVAS.getContext("2d"),
-            drawPixelsGrid = function () {
-              const pixelDimension = {
-                width: STATE_PIXEL_DIMENSIONS.getWidth(),
-                height: STATE_PIXEL_DIMENSIONS.getHeight(),
-              };
-              let currentX = 0;
-              while (currentX < CANVAS.width) {
-                CONTEXT.moveTo(currentX, 0);
-                CONTEXT.lineTo(currentX, CANVAS.height);
-                currentX = currentX + pixelDimension.width;
-              }
+            STATE_SELECTED_PIXELS = stateDrawnPixels(),
+            STATE_SELECTED_COLOR = stateSelectedColour(),
+            CONTEXT = CANVAS.getContext("2d"),
+            CANVAS_POS_IN_VIEWPORT = (function () {
+              const { top, left } = CANVAS.getBoundingClientRect();
+              return { top, left };
+            })();
 
-              let currentY = 0;
-              while (currentY < CANVAS.height) {
-                CONTEXT.moveTo(0, currentY);
-                CONTEXT.lineTo(CANVAS.width, currentY);
-                currentY = currentY + pixelDimension.height;
-              }
-
-              CONTEXT.strokeStyle = "#ccc";
-              CONTEXT.stroke();
+          const drawPixelsGrid = function () {
+            const pixelDimension = {
+              width: STATE_PIXEL_DIMENSIONS.getWidth(),
+              height: STATE_PIXEL_DIMENSIONS.getHeight(),
             };
+            let currentX = 0;
+            while (currentX < CANVAS.width) {
+              CONTEXT.moveTo(currentX, 0);
+              CONTEXT.lineTo(currentX, CANVAS.height);
+              currentX = currentX + pixelDimension.width;
+            }
+
+            let currentY = 0;
+            while (currentY < CANVAS.height) {
+              CONTEXT.moveTo(0, currentY);
+              CONTEXT.lineTo(CANVAS.width, currentY);
+              currentY = currentY + pixelDimension.height;
+            }
+
+            CONTEXT.strokeStyle = "#ccc";
+            CONTEXT.stroke();
+          };
           setCanvasDimensionsWithWindow = function () {
             CANVAS.width = CONTAINER.offsetWidth;
             CANVAS.height = CONTAINER.offsetHeight;
             drawPixelsGrid();
           };
 
+          /**
+           * @param {array} canvasPointCoordinates
+           * @param {number} canvasPointCoordinates[0] - x
+           * @param {number} canvasPointCoordinates[1] - y
+           */
+          const colorPixel = function ([x, y]) {
+            const pixelCoordinates = getPixelFromCanvasPoint(
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                [x, y]
+              ),
+              [pixelCoordinateX, pixelCoordinateY] =
+                getCanvasCoordinatesFromPixel(
+                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                  pixelCoordinates
+                );
+
+            CONTEXT.beginPath();
+            CONTEXT.lineWidth = "1";
+            CONTEXT.fillStyle = STATE_SELECTED_COLOR.getColor();
+            CONTEXT.rect(
+              pixelCoordinateX,
+              pixelCoordinateY,
+              STATE_PIXEL_DIMENSIONS.getWidth(),
+              STATE_PIXEL_DIMENSIONS.getHeight()
+            );
+            CONTEXT.fill();
+
+            STATE_SELECTED_PIXELS.add(pixelCoordinates);
+          };
+
           window.addEventListener("resize", function () {
             setCanvasDimensionsWithWindow(CANVAS);
+            const { top, left } = CANVAS.getBoundingClientRect();
+            CANVAS_POS_IN_VIEWPORT = { top, left };
+            // TODO color drawn pixels
           });
 
           setCanvasDimensionsWithWindow();
+
+          const mousedownHandler = CANVAS.addEventListener("click", (event) => {
+            const { top, left } = CANVAS_POS_IN_VIEWPORT;
+            const x = event.clientX - left,
+              y = event.clientY - top;
+
+            colorPixel([x, y]);
+          });
         } else {
           CONTAINER.innerText =
             "This app uses canvas, which is not supported by your browser";
@@ -99,6 +146,9 @@
             },
             getHeight: function () {
               return dimensions.height;
+            },
+            getDimensionsObject: function () {
+              return { width: dimensions.width, height: dimensions.height };
             },
           };
         }
@@ -154,13 +204,28 @@
           return [xCoordinates, yCoordinates];
         }
 
+        /**
+         * @param {object} pixelDimension
+         * @param {number} pixelDimension.width
+         * @param {number} pixelDimension.height
+         * @param {array} pixelCoordinates
+         * @param {number} pixelCoordinates[0] - x
+         * @param {number} pixelCoordinates[1] - y
+         */
+        function getCanvasCoordinatesFromPixel(
+          pixelDimension,
+          pixelCoordinates
+        ) {
+          const [x, y] = pixelCoordinates;
+          return [x * pixelDimension.width, y * pixelDimension.height];
+        }
         window.test = function () {
           function expectForNoObjects(description, output, expected) {
             if (output == expected) {
-              console.log("SUCCEED", description);
+              console.log("[SUCCEED]", description);
             } else
               console.error(
-                "FAILED",
+                "[FAILED]",
                 description,
                 `expected: ${expected}, but received: ${output}`
               );
@@ -206,6 +271,21 @@
             "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - y",
             output[1],
             10
+          );
+
+          output = getCanvasCoordinatesFromPixel(
+            { width: 10, height: 10 },
+            [255, 100]
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - x",
+            output[0],
+            2550
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - y",
+            output[1],
+            1000
           );
         };
       })();
