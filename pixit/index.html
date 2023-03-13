@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixit</title>
+    <style>
+      .container {
+        height: 70vh;
+        margin: 0 auto;
+        width: 90vw;
+      }
+
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section id="canvas-container" class="container"></section>
+    </main>
+
+    <script type="text/javascript">
+      (function () {
+        const CONTAINER = document.getElementById("canvas-container"),
+          CANVAS = (function () {
+            const canvasNode = document.createElement("canvas");
+            canvasNode.id = "pixit";
+            canvasNode.innerText = "This is the are where you can draw";
+
+            CONTAINER.appendChild(canvasNode);
+
+            return canvasNode;
+          })();
+
+        if (CANVAS.getContext) {
+          const STATE_PIXEL_DIMENSIONS = statePixelsDimensions(),
+            STATE_SELECTED_PIXELS = stateDrawnPixels();
+          const CONTEXT = CANVAS.getContext("2d"),
+            drawPixelsGrid = function () {
+              const pixelDimension = {
+                width: STATE_PIXEL_DIMENSIONS.getWidth(),
+                height: STATE_PIXEL_DIMENSIONS.getHeight(),
+              };
+              let currentX = 0;
+              while (currentX < CANVAS.width) {
+                CONTEXT.moveTo(currentX, 0);
+                CONTEXT.lineTo(currentX, CANVAS.height);
+                currentX = currentX + pixelDimension.width;
+              }
+
+              let currentY = 0;
+              while (currentY < CANVAS.height) {
+                CONTEXT.moveTo(0, currentY);
+                CONTEXT.lineTo(CANVAS.width, currentY);
+                currentY = currentY + pixelDimension.height;
+              }
+
+              CONTEXT.strokeStyle = "#ccc";
+              CONTEXT.stroke();
+            };
+          setCanvasDimensionsWithWindow = function () {
+            CANVAS.width = CONTAINER.offsetWidth;
+            CANVAS.height = CONTAINER.offsetHeight;
+            drawPixelsGrid();
+          };
+
+          window.addEventListener("resize", function () {
+            setCanvasDimensionsWithWindow(CANVAS);
+          });
+
+          setCanvasDimensionsWithWindow();
+        } else {
+          CONTAINER.innerText =
+            "This app uses canvas, which is not supported by your browser";
+        }
+
+        /*state*/
+        function statePixelsDimensions(
+          initialPixelWidth = 10,
+          initialPixedHeight = 10
+        ) {
+          const dimensions = {
+            width: initialPixelWidth,
+            height: initialPixedHeight,
+          };
+
+          return {
+            setWidth: function (value) {
+              dimensions.width = value;
+            },
+            setHeight: function (value) {
+              dimensions.height = value;
+            },
+            getWidth: function () {
+              return dimensions.width;
+            },
+            getHeight: function () {
+              return dimensions.height;
+            },
+          };
+        }
+
+        function stateDrawnPixels() {
+          const pixelCoordinates = [];
+
+          return {
+            add: function (coordinates) {
+              pixelCoordinates.push(coordinates);
+            },
+            getAll: function () {
+              return [...pixelCoordinates];
+            },
+          };
+        }
+
+        function stateSelectedColour() {
+          let color = "#000";
+
+          return {
+            setColor: function (value) {
+              color = value;
+            },
+            getColor: function () {
+              return color;
+            },
+          };
+        }
+
+        /*utils*/
+
+        /**
+         *
+         * @param {object} pixelDimension
+         * @param {number} pixelDimension.width
+         * @param {number} pixelDimension.height
+         * @param {array} canvasPointCoordinates
+         * @param {number} canvasPointCoordinates[0] - x
+         * @param {number} canvasPointCoordinates[1] - y
+         */
+        function getPixelFromCanvasPoint(
+          pixelDimension,
+          canvasPointCoordinates
+        ) {
+          const xCoordinates = parseInt(
+            canvasPointCoordinates[0] / pixelDimension.width
+          );
+          const yCoordinates = parseInt(
+            canvasPointCoordinates[1] / pixelDimension.height
+          );
+
+          return [xCoordinates, yCoordinates];
+        }
+
+        window.test = function () {
+          function expectForNoObjects(description, output, expected) {
+            if (output == expected) {
+              console.log("SUCCEED", description);
+            } else
+              console.error(
+                "FAILED",
+                description,
+                `expected: ${expected}, but received: ${output}`
+              );
+          }
+
+          let output = getPixelFromCanvasPoint(
+            { width: 10, height: 10 },
+            [0, 0]
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - x",
+            output[0],
+            0
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - y",
+            output[1],
+            0
+          );
+
+          output = getPixelFromCanvasPoint({ width: 10, height: 10 }, [25, 0]);
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - x",
+            output[0],
+            2
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - y",
+            output[1],
+            0
+          );
+
+          output = getPixelFromCanvasPoint(
+            { width: 10, height: 10 },
+            [255, 100]
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - x",
+            output[0],
+            25
+          );
+          expectForNoObjects(
+            "getPixelFromCanvasPoint - should return the pixel coordinates based on the current position in the canvas - y",
+            output[1],
+            10
+          );
+        };
+      })();
+    </script>
+  </body>
+</html>
