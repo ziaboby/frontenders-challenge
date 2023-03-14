@@ -96,14 +96,19 @@
             // TODO color drawn pixels
           });
 
-          CANVAS_HANDLER.setCanvasDimensionsWithWindow();
           CANVAS_HANDLER.drawPixelsGrid(
             STATE_PIXEL_DIMENSIONS.getDimensionsObject()
           );
 
           let isMouseDown = false,
             latestClientX,
-            latestClientY;
+            latestClientY,
+            setMouseDownToTrue = () => {
+              isMouseDown = true;
+            },
+            setMouseDownToFalse = () => {
+              isMouseDown = false;
+            };
 
           function colorPixelOnMouseMove(event) {
             if (isMouseDown) {
@@ -133,15 +138,37 @@
             }
           }
 
-          CANVAS_HANDLER.canvas.addEventListener("mousedown", (event) => {
-            isMouseDown = true;
-          });
-          CANVAS_HANDLER.canvas.addEventListener("mousemove", (event) => {
-            colorPixelOnMouseMove(event);
-          });
-          CANVAS_HANDLER.canvas.addEventListener("mouseup", (event) => {
-            isMouseDown = false;
-          });
+          function addCanvasEventsListener() {
+            CANVAS_HANDLER.canvas.addEventListener(
+              "mousedown",
+              setMouseDownToTrue
+            );
+            CANVAS_HANDLER.canvas.addEventListener(
+              "mousemove",
+              colorPixelOnMouseMove
+            );
+            CANVAS_HANDLER.canvas.addEventListener(
+              "mouseup",
+              setMouseDownToFalse
+            );
+          }
+
+          function removeCanvasEventsListener() {
+            CANVAS_HANDLER.canvas.removeEventListener(
+              "mousedown",
+              setMouseDownToTrue
+            );
+            CANVAS_HANDLER.canvas.removeEventListener(
+              "mousemove",
+              colorPixelOnMouseMove
+            );
+            CANVAS_HANDLER.canvas.removeEventListener(
+              "mouseup",
+              setMouseDownToFalse
+            );
+          }
+
+          addCanvasEventsListener();
 
           document
             .getElementById("reset")
@@ -151,12 +178,15 @@
               STATE_PIXEL_DIMENSIONS.setWidth(10);
               STATE_PIXEL_DIMENSIONS.setHeight(10);
 
-              CONTAINER.innerHTML = "";
-              CANVAS_HANDLER.init(CONTAINER);
               CANVAS_HANDLER.setCanvasDimensionsWithWindow();
               CANVAS_HANDLER.drawPixelsGrid(
                 STATE_PIXEL_DIMENSIONS.getDimensionsObject()
               );
+              CANVAS_HANDLER.createCanvas();
+              STATE_SELECTED_PIXELS.removeAll();
+
+              removeCanvasEventsListener();
+              addCanvasEventsListener();
 
               // TODO reset color
             });
@@ -166,9 +196,45 @@
             .addEventListener("change", function (event) {
               const width = +event.target.value;
               STATE_PIXEL_DIMENSIONS.setWidth(width);
+
               CANVAS_HANDLER.drawPixelsGrid(
                 STATE_PIXEL_DIMENSIONS.getDimensionsObject()
               );
+              CANVAS_HANDLER.createCanvas();
+
+              STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
+                CANVAS_HANDLER.colorPixel(
+                  pixelCoordinate,
+                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                  STATE_SELECTED_COLOR.getColor()
+                );
+              });
+
+              removeCanvasEventsListener();
+              addCanvasEventsListener();
+            });
+
+          document
+            .querySelector("input[name='height']")
+            .addEventListener("change", function (event) {
+              const height = +event.target.value;
+              STATE_PIXEL_DIMENSIONS.setHeight(height);
+
+              CANVAS_HANDLER.drawPixelsGrid(
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+              );
+              CANVAS_HANDLER.createCanvas();
+
+              STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
+                CANVAS_HANDLER.colorPixel(
+                  pixelCoordinate,
+                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                  STATE_SELECTED_COLOR.getColor()
+                );
+              });
+
+              removeCanvasEventsListener();
+              addCanvasEventsListener();
             });
         } else {
           CONTAINER.innerText =
@@ -205,7 +271,7 @@
         }
 
         function stateDrawnPixels() {
-          const pixelCoordinates = [];
+          let pixelCoordinates = [];
 
           return {
             add: function (coordinates) {
@@ -213,6 +279,9 @@
             },
             getAll: function () {
               return [...pixelCoordinates];
+            },
+            removeAll: function () {
+              pixelCoordinates = [];
             },
           };
         }
@@ -242,11 +311,20 @@
 
           return {
             init: function (containerElement) {
-              _canvasNode = document.createElement("canvas");
-              _canvasNode.id = "pixit";
-              _canvasNode.innerText = "This is the are where you can draw";
               _container = containerElement;
-              containerElement.appendChild(_canvasNode);
+              this.createCanvas();
+            },
+            createCanvas() {
+              const id = "pixit";
+              if ((prevCanvas = document.getElementById(id))) {
+                _canvasNode = null;
+                _container.removeChild(prevCanvas);
+              }
+              _canvasNode = document.createElement("canvas");
+              _canvasNode.id = id;
+              _canvasNode.innerText = "This is the are where you can draw";
+              _container.appendChild(_canvasNode);
+              this.setCanvasDimensionsWithWindow();
             },
             get canvas() {
               return _canvasNode;
