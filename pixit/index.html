@@ -48,6 +48,7 @@
         height: 70vh;
         margin: 0 auto;
         width: 90vw;
+        position: relative;
       }
 
       canvas {
@@ -265,22 +266,44 @@
              * @param {number} pixelDimension.height
              * */
             drawPixelsGrid(pixelDimension) {
-              let currentX = 0;
-              while (currentX < this.canvas.width) {
-                this.context.moveTo(currentX, 0);
-                this.context.lineTo(currentX, this.canvas.height);
+              const id = "pixit-grid";
+
+              if ((prevCanvas = document.getElementById(id))) {
+                _container.removeChild(prevCanvas);
+              }
+
+              let _gridCanvasNode = document.createElement("canvas");
+              _gridCanvasNode.id = id;
+              _gridCanvasNode.innerText =
+                "This is the grid of the area where you can draw";
+              _gridCanvasNode.width = this.canvas.width;
+              _gridCanvasNode.height = this.canvas.height;
+              _gridCanvasNode.style.zIndex = -1;
+              _gridCanvasNode.style.position = "absolute";
+              _gridCanvasNode.style.top = 0;
+              _gridCanvasNode.style.left = 0;
+              _gridCanvasNode.style.bottom = 0;
+              _gridCanvasNode.style.right = 0;
+              _container.appendChild(_gridCanvasNode);
+
+              let currentX = 0,
+                context = _gridCanvasNode.getContext("2d");
+
+              while (currentX < _gridCanvasNode.width) {
+                context.moveTo(currentX, 0);
+                context.lineTo(currentX, _gridCanvasNode.height);
                 currentX = currentX + pixelDimension.width;
               }
 
               let currentY = 0;
-              while (currentY < this.canvas.height) {
-                this.context.moveTo(0, currentY);
-                this.context.lineTo(this.canvas.width, currentY);
+              while (currentY < _gridCanvasNode.height) {
+                context.moveTo(0, currentY);
+                context.lineTo(_gridCanvasNode.width, currentY);
                 currentY = currentY + pixelDimension.height;
               }
 
-              this.context.strokeStyle = "#ccc";
-              this.context.stroke();
+              context.strokeStyle = "#ccc";
+              context.stroke();
             },
             setCanvasDimensionsWithWindow() {
               this.canvas.width = _container.offsetWidth;
