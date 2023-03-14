@@ -25,100 +25,44 @@
     <script type="text/javascript">
       (function () {
         const CONTAINER = document.getElementById("canvas-container"),
-          CANVAS = (function () {
-            const canvasNode = document.createElement("canvas");
-            canvasNode.id = "pixit";
-            canvasNode.innerText = "This is the are where you can draw";
+          CANVAS_HANDLER = handleCanvas();
 
-            CONTAINER.appendChild(canvasNode);
+        CANVAS_HANDLER.init(CONTAINER);
 
-            return canvasNode;
-          })();
-
-        if (CANVAS.getContext) {
+        if (CANVAS_HANDLER.isCanvasSupported) {
           const STATE_PIXEL_DIMENSIONS = statePixelsDimensions(),
             STATE_SELECTED_PIXELS = stateDrawnPixels(),
-            STATE_SELECTED_COLOR = stateSelectedColour(),
-            CONTEXT = CANVAS.getContext("2d"),
-            CANVAS_POS_IN_VIEWPORT = (function () {
-              const { top, left } = CANVAS.getBoundingClientRect();
-              return { top, left };
-            })();
-
-          const drawPixelsGrid = function () {
-            const pixelDimension = {
-              width: STATE_PIXEL_DIMENSIONS.getWidth(),
-              height: STATE_PIXEL_DIMENSIONS.getHeight(),
-            };
-            let currentX = 0;
-            while (currentX < CANVAS.width) {
-              CONTEXT.moveTo(currentX, 0);
-              CONTEXT.lineTo(currentX, CANVAS.height);
-              currentX = currentX + pixelDimension.width;
-            }
-
-            let currentY = 0;
-            while (currentY < CANVAS.height) {
-              CONTEXT.moveTo(0, currentY);
-              CONTEXT.lineTo(CANVAS.width, currentY);
-              currentY = currentY + pixelDimension.height;
-            }
-
-            CONTEXT.strokeStyle = "#ccc";
-            CONTEXT.stroke();
-          };
-          setCanvasDimensionsWithWindow = function () {
-            CANVAS.width = CONTAINER.offsetWidth;
-            CANVAS.height = CONTAINER.offsetHeight;
-            drawPixelsGrid();
-          };
-
-          /**
-           * @param {array} canvasPointCoordinates
-           * @param {number} canvasPointCoordinates[0] - x
-           * @param {number} canvasPointCoordinates[1] - y
-           */
-          const colorPixel = function ([x, y]) {
-            const pixelCoordinates = getPixelFromCanvasPoint(
-                STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                [x, y]
-              ),
-              [pixelCoordinateX, pixelCoordinateY] =
-                getCanvasCoordinatesFromPixel(
-                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                  pixelCoordinates
-                );
-
-            CONTEXT.beginPath();
-            CONTEXT.lineWidth = "1";
-            CONTEXT.fillStyle = STATE_SELECTED_COLOR.getColor();
-            CONTEXT.rect(
-              pixelCoordinateX,
-              pixelCoordinateY,
-              STATE_PIXEL_DIMENSIONS.getWidth(),
-              STATE_PIXEL_DIMENSIONS.getHeight()
-            );
-            CONTEXT.fill();
-
-            STATE_SELECTED_PIXELS.add(pixelCoordinates);
-          };
+            STATE_SELECTED_COLOR = stateSelectedColour();
 
           window.addEventListener("resize", function () {
-            setCanvasDimensionsWithWindow(CANVAS);
-            const { top, left } = CANVAS.getBoundingClientRect();
-            CANVAS_POS_IN_VIEWPORT = { top, left };
+            CANVAS_HANDLER.setCanvasDimensionsWithWindow();
+            CANVAS_HANDLER.drawPixelsGrid(
+              STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+            );
             // TODO color drawn pixels
           });
 
-          setCanvasDimensionsWithWindow();
+          CANVAS_HANDLER.setCanvasDimensionsWithWindow();
+          CANVAS_HANDLER.drawPixelsGrid(
+            STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+          );
 
-          const mousedownHandler = CANVAS.addEventListener("click", (event) => {
-            const { top, left } = CANVAS_POS_IN_VIEWPORT;
-            const x = event.clientX - left,
-              y = event.clientY - top;
+          const mousedownHandler = CANVAS_HANDLER.canvas.addEventListener(
+            "click",
+            (event) => {
+              const { top, left } = CANVAS_HANDLER.positionInsideTheViewport;
+              const x = event.clientX - left,
+                y = event.clientY - top;
 
-            colorPixel([x, y]);
-          });
+              const coloredPixelCoordinates = CANVAS_HANDLER.colorPixel(
+                [x, y],
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                STATE_SELECTED_COLOR.getColor()
+              );
+
+              STATE_SELECTED_PIXELS.add(coloredPixelCoordinates);
+            }
+          );
         } else {
           CONTAINER.innerText =
             "This app uses canvas, which is not supported by your browser";
@@ -175,6 +119,100 @@
             },
             getColor: function () {
               return color;
+            },
+          };
+        }
+
+        /*canvas*/
+        function handleCanvas() {
+          let _canvasNode, _canvasPositionInsideTheViewport, _container;
+
+          function _updateCanvasPositionInsideTheViewport() {
+            const { top, left } = _canvasNode.getBoundingClientRect();
+
+            _canvasPositionInsideTheViewport = { top, left };
+          }
+
+          return {
+            init: function (containerElement) {
+              _canvasNode = document.createElement("canvas");
+              _canvasNode.id = "pixit";
+              _canvasNode.innerText = "This is the are where you can draw";
+              _container = containerElement;
+              containerElement.appendChild(_canvasNode);
+            },
+            get canvas() {
+              return _canvasNode;
+            },
+            get context() {
+              return _canvasNode.getContext("2d");
+            },
+            get isCanvasSupported() {
+              return !!_canvasNode.getContext;
+            },
+            get positionInsideTheViewport() {
+              return { ..._canvasPositionInsideTheViewport };
+            },
+            /**
+             * @param {object} pixelDimension
+             * @param {number} pixelDimension.width
+             * @param {number} pixelDimension.height
+             * */
+            drawPixelsGrid(pixelDimension) {
+              let currentX = 0;
+              while (currentX < this.canvas.width) {
+                this.context.moveTo(currentX, 0);
+                this.context.lineTo(currentX, this.canvas.height);
+                currentX = currentX + pixelDimension.width;
+              }
+
+              let currentY = 0;
+              while (currentY < this.canvas.height) {
+                this.context.moveTo(0, currentY);
+                this.context.lineTo(this.canvas.width, currentY);
+                currentY = currentY + pixelDimension.height;
+              }
+
+              this.context.strokeStyle = "#ccc";
+              this.context.stroke();
+            },
+            setCanvasDimensionsWithWindow() {
+              this.canvas.width = _container.offsetWidth;
+              this.canvas.height = _container.offsetHeight;
+              _updateCanvasPositionInsideTheViewport();
+            },
+            /**
+             * @param {array} canvasPointCoordinates
+             * @param {number} canvasPointCoordinates[0] - x
+             * @param {number} canvasPointCoordinates[1] - y
+             * @param {object} pixelDimension
+             * @param {number} pixelDimension.width
+             * @param {number} pixelDimension.height
+             * @param {string} color
+             */
+            colorPixel([x, y], pixelDimension, color) {
+              const pixelCoordinates = getPixelFromCanvasPoint(pixelDimension, [
+                  x,
+                  y,
+                ]),
+                [pixelCoordinateX, pixelCoordinateY] =
+                  getCanvasCoordinatesFromPixel(
+                    pixelDimension,
+                    pixelCoordinates
+                  );
+
+              this.context.beginPath();
+              this.context.lineWidth = "1";
+              this.context.fillStyle = color;
+              this.context.rect(
+                pixelCoordinateX,
+                pixelCoordinateY,
+                pixelDimension.width,
+                pixelDimension.height
+              );
+              this.context.fill();
+
+              return [pixelCoordinateX, pixelCoordinateY];
             },
           };
         }
