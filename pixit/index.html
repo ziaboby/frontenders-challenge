@@ -47,22 +47,47 @@
             STATE_PIXEL_DIMENSIONS.getDimensionsObject()
           );
 
-          const mousedownHandler = CANVAS_HANDLER.canvas.addEventListener(
-            "click",
-            (event) => {
+          let isMouseDown = false,
+            latestClientX,
+            latestClientY;
+
+          function colorPixelOnMouseMove(event) {
+            if (isMouseDown) {
               const { top, left } = CANVAS_HANDLER.positionInsideTheViewport;
               const x = event.clientX - left,
                 y = event.clientY - top;
 
-              const coloredPixelCoordinates = CANVAS_HANDLER.colorPixel(
-                [x, y],
-                STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                STATE_SELECTED_COLOR.getColor()
-              );
+              const mousedMovedEnterNewPixel =
+                !latestClientX ||
+                Math.abs(latestClientX - x) >
+                  STATE_PIXEL_DIMENSIONS.getWidth() / 2 ||
+                Math.abs(latestClientY - y) >
+                  STATE_PIXEL_DIMENSIONS.getHeight() / 2;
 
-              STATE_SELECTED_PIXELS.add(coloredPixelCoordinates);
+              if (mousedMovedEnterNewPixel) {
+                latestClientX = x;
+                latestClientY = y;
+
+                const coloredPixelCoordinates = CANVAS_HANDLER.colorPixel(
+                  [x, y],
+                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                  STATE_SELECTED_COLOR.getColor()
+                );
+
+                STATE_SELECTED_PIXELS.add(coloredPixelCoordinates);
+              }
             }
-          );
+          }
+
+          CANVAS_HANDLER.canvas.addEventListener("mousedown", (event) => {
+            isMouseDown = true;
+          });
+          CANVAS_HANDLER.canvas.addEventListener("mousemove", (event) => {
+            colorPixelOnMouseMove(event);
+          });
+          CANVAS_HANDLER.canvas.addEventListener("mouseup", (event) => {
+            isMouseDown = false;
+          });
         } else {
           CONTAINER.innerText =
             "This app uses canvas, which is not supported by your browser";
