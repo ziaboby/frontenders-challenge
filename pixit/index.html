@@ -226,8 +226,12 @@
               CANVAS_HANDLER.createCanvas();
 
               STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
+                const pixelCanvasCoordinates = getCanvasCoordinatesFromPixel(
+                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                  pixelCoordinate
+                );
                 CANVAS_HANDLER.colorPixel(
-                  pixelCoordinate,
+                  pixelCanvasCoordinates,
                   STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
                   STATE_SELECTED_COLOR.getColor()
                 );
@@ -419,7 +423,7 @@
               );
               this.context.fill();
 
-              return [pixelCoordinateX, pixelCoordinateY];
+              return pixelCoordinates;
             },
           };
         }
@@ -427,7 +431,7 @@
         /*utils*/
 
         /**
-         *
+         * Return the grid pixel corresponding to canvas coordinates
          * @param {object} pixelDimension
          * @param {number} pixelDimension.width
          * @param {number} pixelDimension.height
@@ -450,6 +454,7 @@
         }
 
         /**
+         * Return the canvas coordinates of the pixel
          * @param {object} pixelDimension
          * @param {number} pixelDimension.width
          * @param {number} pixelDimension.height
