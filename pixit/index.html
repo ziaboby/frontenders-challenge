@@ -6,6 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pixit</title>
     <style>
+      html {
+        font-size: 16px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      body {
+        margin: 1.5rem;
+      }
+
+      header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header > button {
+        border: none;
+        border-radius: 5px;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+      }
+
+      .controller-number > label {
+        display: inline-flex;
+      }
+
+      .controller-number > label:first-child {
+        margin-right: 2rem;
+      }
+
+      .controller-number input {
+        margin-left: 1rem;
+      }
+
       .container {
         height: 70vh;
         margin: 0 auto;
@@ -19,6 +57,21 @@
   </head>
   <body>
     <main>
+      <header>
+        <h1>PIXIT</h1>
+        <div class="controller-number">
+          <label for="width">
+            Width
+            <input type="range" min="1" max="100" name="width" value="10" />
+          </label>
+          <label for="height">
+            Height
+            <input type="range" min="1" max="100" name="height" value="10" />
+          </label>
+        </div>
+        <button type="button" id="reset">reset</button>
+      </header>
+
       <section id="canvas-container" class="container"></section>
     </main>
 
@@ -88,6 +141,34 @@
           CANVAS_HANDLER.canvas.addEventListener("mouseup", (event) => {
             isMouseDown = false;
           });
+
+          document
+            .getElementById("reset")
+            .addEventListener("click", function () {
+              document.querySelector("input[name='width']").value = 10;
+              document.querySelector("input[name='height").value = 10;
+              STATE_PIXEL_DIMENSIONS.setWidth(10);
+              STATE_PIXEL_DIMENSIONS.setHeight(10);
+
+              CONTAINER.innerHTML = "";
+              CANVAS_HANDLER.init(CONTAINER);
+              CANVAS_HANDLER.setCanvasDimensionsWithWindow();
+              CANVAS_HANDLER.drawPixelsGrid(
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+              );
+
+              // TODO reset color
+            });
+
+          document
+            .querySelector("input[name='width']")
+            .addEventListener("change", function (event) {
+              const width = +event.target.value;
+              STATE_PIXEL_DIMENSIONS.setWidth(width);
+              CANVAS_HANDLER.drawPixelsGrid(
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+              );
+            });
         } else {
           CONTAINER.innerText =
             "This app uses canvas, which is not supported by your browser";
