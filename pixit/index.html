@@ -178,6 +178,28 @@
             );
           }
 
+          function redrawPixels() {
+            CANVAS_HANDLER.drawPixelsGrid(
+              STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+            );
+            CANVAS_HANDLER.createCanvas();
+
+            STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
+              const pixelCanvasCoordinates = getCanvasCoordinatesFromPixel(
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                pixelCoordinate
+              );
+              CANVAS_HANDLER.colorPixel(
+                pixelCanvasCoordinates,
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
+                STATE_SELECTED_COLOR.getColor()
+              );
+            });
+
+            removeCanvasEventsListener();
+            addCanvasEventsListener();
+          }
+
           addCanvasEventsListener();
 
           document
@@ -188,15 +210,11 @@
               STATE_PIXEL_DIMENSIONS.setWidth(10);
               STATE_PIXEL_DIMENSIONS.setHeight(10);
 
-              CANVAS_HANDLER.setCanvasDimensionsWithWindow();
-              CANVAS_HANDLER.drawPixelsGrid(
-                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
-              );
-              CANVAS_HANDLER.createCanvas();
               STATE_SELECTED_PIXELS.removeAll();
 
-              removeCanvasEventsListener();
-              addCanvasEventsListener();
+              CANVAS_HANDLER.setCanvasDimensionsWithWindow();
+
+              redrawPixels();
 
               // TODO reset color
             });
@@ -207,21 +225,7 @@
               const width = +event.target.value;
               STATE_PIXEL_DIMENSIONS.setWidth(width);
 
-              CANVAS_HANDLER.drawPixelsGrid(
-                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
-              );
-              CANVAS_HANDLER.createCanvas();
-
-              STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
-                CANVAS_HANDLER.colorPixel(
-                  pixelCoordinate,
-                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                  STATE_SELECTED_COLOR.getColor()
-                );
-              });
-
-              removeCanvasEventsListener();
-              addCanvasEventsListener();
+              redrawPixels();
             });
 
           document
@@ -230,25 +234,7 @@
               const height = +event.target.value;
               STATE_PIXEL_DIMENSIONS.setHeight(height);
 
-              CANVAS_HANDLER.drawPixelsGrid(
-                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
-              );
-              CANVAS_HANDLER.createCanvas();
-
-              STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
-                const pixelCanvasCoordinates = getCanvasCoordinatesFromPixel(
-                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                  pixelCoordinate
-                );
-                CANVAS_HANDLER.colorPixel(
-                  pixelCanvasCoordinates,
-                  STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                  STATE_SELECTED_COLOR.getColor()
-                );
-              });
-
-              removeCanvasEventsListener();
-              addCanvasEventsListener();
+              redrawPixels();
             });
 
           document.getElementById("download").addEventListener("click", () => {
