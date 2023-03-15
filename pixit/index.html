@@ -12,17 +12,26 @@
       }
 
       body {
-        margin: 1.5rem;
+        background-color: #eee;
+        margin: 0;
       }
 
       header {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
+        padding: 0.3rem 1.5rem;
+        background-color: #fff;
       }
 
-      header > button {
+      main {
+        padding: 1.5rem;
+      }
+
+      button {
+        background-color: #ccc;
         border: none;
         border-radius: 5px;
         color: #333;
@@ -42,6 +51,31 @@
 
       .controller-number input {
         margin-left: 1rem;
+      }
+
+      .color-palette {
+        align-items: center;
+        background-color: #fff;
+        border-radius: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+      }
+
+      .btn-color {
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        height: 1rem;
+        width: 1rem;
+        padding: 0;
+      }
+
+      .btn-color.selected {
+        border-style: dotted;
+        border-width: 5px;
+        pointer-events: none;
       }
 
       .container {
@@ -64,22 +98,36 @@
     </style>
   </head>
   <body>
+    <header>
+      <h1>PIXIT</h1>
+      <div class="controller-number">
+        <label for="width">
+          Width
+          <input
+            type="range"
+            min="1"
+            max="100"
+            id="width"
+            name="width"
+            value="10"
+          />
+        </label>
+        <label for="height">
+          Height
+          <input
+            type="range"
+            min="1"
+            max="100"
+            id="height"
+            name="height"
+            value="10"
+          />
+        </label>
+      </div>
+      <button type="button" id="reset">reset</button>
+    </header>
     <main>
-      <header>
-        <h1>PIXIT</h1>
-        <div class="controller-number">
-          <label for="width">
-            Width
-            <input type="range" min="1" max="100" name="width" value="10" />
-          </label>
-          <label for="height">
-            Height
-            <input type="range" min="1" max="100" name="height" value="10" />
-          </label>
-        </div>
-        <button type="button" id="reset">reset</button>
-      </header>
-
+      <section id="palette" class="color-palette"></section>
       <section id="canvas-container" class="container"></section>
       <section class="download">
         <button type="button" id="download">Download drawing as image</button>
@@ -87,6 +135,73 @@
     </main>
 
     <script type="text/javascript">
+      (function () {
+        const colors = [
+          "#000000",
+          "#808080",
+          "#98AFC7",
+          "#2B547E",
+          "#151B54",
+          "#00008B",
+          "#0000FF",
+          "#1E90FF",
+          "#4682B4",
+          "#00BFFF",
+          "#87CEFA",
+          "#00FFFF",
+          "#16E2F5",
+          "#66CDAA",
+          "#40E0D0",
+          "#20B2AA",
+          "#008B8B",
+          "#033E3E",
+          "#1F6357",
+          "#2E8B57",
+          "#3CB371",
+          "#556B2F",
+          "#228B22",
+          "#006400",
+          "#004225",
+          "#00FF00",
+          "#7FFF00",
+          "#E2F516",
+          "#F0E68C",
+          "#FFFF00",
+          "#FFA500",
+          "#F4A460",
+          "#C19A6B",
+          "#AA6C39",
+          "#513B1C",
+          "#7E3517",
+          "#C04000",
+          "#CD5C5C",
+          "#E55B3C",
+          "#FF0000",
+          "#B22222",
+          "#550A35",
+          "#872657",
+          "#E38AAE",
+          "#DB7093",
+          "#FF69B4",
+          "#FF1493",
+          "#C71585",
+          "#FF00FF",
+          "#F2A2E8",
+          "#FFF",
+        ];
+
+        const container = document.getElementById("palette");
+        colors.forEach((color) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn-color";
+          button.style.backgroundColor = color;
+          button.dataset.color = color;
+          button.ariaLabel = button.title = `Select color ${color}`;
+          container.append(button);
+        });
+      })();
+
       (function () {
         const CONTAINER = document.getElementById("canvas-container"),
           CANVAS_HANDLER = handleCanvas();
@@ -109,6 +224,28 @@
           CANVAS_HANDLER.drawPixelsGrid(
             STATE_PIXEL_DIMENSIONS.getDimensionsObject()
           );
+
+          const firstColorPalette = document.querySelector(".btn-color"),
+            firstColor = firstColorPalette.dataset.color;
+          firstColorPalette.classList.add("selected");
+          STATE_SELECTED_COLOR.setColor(firstColor);
+
+          document.querySelectorAll(".btn-color").forEach((btn) => {
+            btn.addEventListener("click", (event) => {
+              document
+                .querySelector(".btn-color.selected")
+                .classList.remove("selected");
+
+              event.target.classList.add("selected");
+              STATE_SELECTED_COLOR.setColor(event.target.dataset.color);
+
+              // document
+              // .querySelector(
+              //   `.btn-color[data-color="${STATE_SELECTED_COLOR.getColor()}"]`
+              // )
+              // .classList.add("selected");
+            });
+          });
 
           let isMouseDown = false,
             latestClientX,
