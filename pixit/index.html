@@ -54,6 +54,13 @@
       canvas {
         border: 1px solid black;
       }
+
+      .download {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     </style>
   </head>
   <body>
@@ -74,6 +81,9 @@
       </header>
 
       <section id="canvas-container" class="container"></section>
+      <section class="download">
+        <button type="button" id="download">Download drawing as image</button>
+      </section>
     </main>
 
     <script type="text/javascript">
@@ -119,9 +129,9 @@
               const mousedMovedEnterNewPixel =
                 !latestClientX ||
                 Math.abs(latestClientX - x) >
-                  STATE_PIXEL_DIMENSIONS.getWidth() / 2 ||
+                  STATE_PIXEL_DIMENSIONS.getWidth() / 3 ||
                 Math.abs(latestClientY - y) >
-                  STATE_PIXEL_DIMENSIONS.getHeight() / 2;
+                  STATE_PIXEL_DIMENSIONS.getHeight() / 3;
 
               if (mousedMovedEnterNewPixel) {
                 latestClientX = x;
@@ -240,6 +250,14 @@
               removeCanvasEventsListener();
               addCanvasEventsListener();
             });
+
+          document.getElementById("download").addEventListener("click", () => {
+            const tagA = document.createElement("a");
+            tagA.download = "image";
+            tagA.target = "_blank";
+            tagA.href = CANVAS_HANDLER.imageURL();
+            tagA.click();
+          });
         } else {
           CONTAINER.innerText =
             "This app uses canvas, which is not supported by your browser";
@@ -320,14 +338,19 @@
             },
             createCanvas() {
               const id = "pixit";
+
               if ((prevCanvas = document.getElementById(id))) {
                 _canvasNode = null;
                 _container.removeChild(prevCanvas);
               }
+
               _canvasNode = document.createElement("canvas");
               _canvasNode.id = id;
               _canvasNode.innerText = "This is the are where you can draw";
+              this.context.fillStyle = "#ffffff";
+
               _container.appendChild(_canvasNode);
+
               this.setCanvasDimensionsWithWindow();
             },
             get canvas() {
@@ -424,6 +447,9 @@
               this.context.fill();
 
               return pixelCoordinates;
+            },
+            imageURL() {
+              return this.canvas.toDataURL("image/png");
             },
           };
         }
