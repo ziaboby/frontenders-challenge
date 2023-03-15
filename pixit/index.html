@@ -218,17 +218,13 @@
             CANVAS_HANDLER.drawPixelsGrid(
               STATE_PIXEL_DIMENSIONS.getDimensionsObject()
             );
-            // TODO color drawn pixels
           });
 
           CANVAS_HANDLER.drawPixelsGrid(
             STATE_PIXEL_DIMENSIONS.getDimensionsObject()
           );
 
-          const firstColorPalette = document.querySelector(".btn-color"),
-            firstColor = firstColorPalette.dataset.color;
-          firstColorPalette.classList.add("selected");
-          STATE_SELECTED_COLOR.setColor(firstColor);
+          setColorOfFirstPaletteElement();
 
           document.querySelectorAll(".btn-color").forEach((btn) => {
             btn.addEventListener("click", (event) => {
@@ -252,6 +248,13 @@
               event.preventDefault();
               isMouseDown = false;
             };
+
+          function setColorOfFirstPaletteElement() {
+            const firstColorPalette = document.querySelector(".btn-color"),
+              firstColor = firstColorPalette.dataset.color;
+            firstColorPalette.classList.add("selected");
+            STATE_SELECTED_COLOR.setColor(firstColor);
+          }
 
           function colorPixelOnMouseMove(event) {
             event.preventDefault();
@@ -349,7 +352,7 @@
 
               redrawPixels();
 
-              // TODO reset color
+              setColorOfFirstPaletteElement();
             });
 
           document
