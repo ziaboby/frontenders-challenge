@@ -238,30 +238,34 @@
 
               event.target.classList.add("selected");
               STATE_SELECTED_COLOR.setColor(event.target.dataset.color);
-
-              // document
-              // .querySelector(
-              //   `.btn-color[data-color="${STATE_SELECTED_COLOR.getColor()}"]`
-              // )
-              // .classList.add("selected");
             });
           });
 
           let isMouseDown = false,
             latestClientX,
             latestClientY,
-            setMouseDownToTrue = () => {
+            setMouseDownToTrue = (event) => {
+              event.preventDefault();
               isMouseDown = true;
             },
-            setMouseDownToFalse = () => {
+            setMouseDownToFalse = (event) => {
+              event.preventDefault();
               isMouseDown = false;
             };
 
           function colorPixelOnMouseMove(event) {
+            event.preventDefault();
             if (isMouseDown) {
               const { top, left } = CANVAS_HANDLER.positionInsideTheViewport;
-              const x = event.clientX - left,
-                y = event.clientY - top;
+
+              const eventX = event.changedTouches
+                  ? event.changedTouches[0].pageX
+                  : event.clientX,
+                eventY = event.changedTouches
+                  ? event.changedTouches[0].pageY
+                  : event.clientY;
+              const x = eventX - left,
+                y = eventY - top;
 
               const mousedMovedEnterNewPixel =
                 !latestClientX ||
@@ -285,34 +289,23 @@
             }
           }
 
-          function addCanvasEventsListener() {
-            CANVAS_HANDLER.canvas.addEventListener(
-              "mousedown",
-              setMouseDownToTrue
-            );
-            CANVAS_HANDLER.canvas.addEventListener(
-              "mousemove",
-              colorPixelOnMouseMove
-            );
-            CANVAS_HANDLER.canvas.addEventListener(
-              "mouseup",
-              setMouseDownToFalse
-            );
-          }
+          /**
+           * @param {1|0} type - 1 addEventListener, 0 - removeEventListener
+           */
+          function addRemoveCanvasEventsListener(type) {
+            const method = ["removeEventListener", "addEventListener"][type];
 
-          function removeCanvasEventsListener() {
-            CANVAS_HANDLER.canvas.removeEventListener(
-              "mousedown",
-              setMouseDownToTrue
-            );
-            CANVAS_HANDLER.canvas.removeEventListener(
-              "mousemove",
-              colorPixelOnMouseMove
-            );
-            CANVAS_HANDLER.canvas.removeEventListener(
-              "mouseup",
-              setMouseDownToFalse
-            );
+            ["mousedown", "touchstart"].forEach((eventName) => {
+              CANVAS_HANDLER.canvas[method](eventName, setMouseDownToTrue);
+            });
+
+            ["mousemove", "touchmove"].forEach((eventName) => {
+              CANVAS_HANDLER.canvas[method](eventName, colorPixelOnMouseMove);
+            });
+
+            ["mouseup", "touchend"].forEach((eventName) => {
+              CANVAS_HANDLER.canvas[method](eventName, setMouseDownToFalse);
+            });
           }
 
           function redrawPixels() {
@@ -333,11 +326,11 @@
               );
             });
 
-            removeCanvasEventsListener();
-            addCanvasEventsListener();
+            addRemoveCanvasEventsListener(0);
+            addRemoveCanvasEventsListener(1);
           }
 
-          addCanvasEventsListener();
+          addRemoveCanvasEventsListener(1);
 
           document
             .getElementById("reset")
