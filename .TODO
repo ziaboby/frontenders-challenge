@@ -1,4 +1,5 @@
 [PIXIT]
-- store draw line color before re-drawing
 - make canvas drawing accessible
 - refactor, splitting in more files
+- add README
+- refactor adding more getter/setter

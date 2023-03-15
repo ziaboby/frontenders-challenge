@@ -284,7 +284,10 @@
                   STATE_SELECTED_COLOR.getColor()
                 );
 
-                STATE_SELECTED_PIXELS.add(coloredPixelCoordinates);
+                STATE_SELECTED_PIXELS.add({
+                  coordinates: [...coloredPixelCoordinates],
+                  color: STATE_SELECTED_COLOR.getColor(),
+                });
               }
             }
           }
@@ -314,15 +317,15 @@
             );
             CANVAS_HANDLER.createCanvas();
 
-            STATE_SELECTED_PIXELS.getAll().forEach((pixelCoordinate) => {
+            STATE_SELECTED_PIXELS.all.forEach((pixelInfo) => {
               const pixelCanvasCoordinates = getCanvasCoordinatesFromPixel(
                 STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                pixelCoordinate
+                pixelInfo.coordinates
               );
               CANVAS_HANDLER.colorPixel(
-                pixelCanvasCoordinates,
+                pixelInfo.coordinates,
                 STATE_PIXEL_DIMENSIONS.getDimensionsObject(),
-                STATE_SELECTED_COLOR.getColor()
+                pixelInfo.color
               );
             });
 
@@ -409,17 +412,22 @@
         }
 
         function stateDrawnPixels() {
-          let pixelCoordinates = [];
+          let _pixelsInfo = [];
 
           return {
-            add: function (coordinates) {
-              pixelCoordinates.push(coordinates);
+            get all() {
+              return [..._pixelsInfo];
             },
-            getAll: function () {
-              return [...pixelCoordinates];
+            /**
+             * @param {object} info
+             * @param {array} info.coordinates
+             * @param {string} info.color
+             */
+            add: function (info) {
+              _pixelsInfo.push(info);
             },
             removeAll: function () {
-              pixelCoordinates = [];
+              _pixelsInfo = [];
             },
           };
         }
