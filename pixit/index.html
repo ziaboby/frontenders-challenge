@@ -253,11 +253,9 @@
             latestClientX,
             latestClientY,
             setMouseDownToTrue = (event) => {
-              event.preventDefault();
               isMouseDown = true;
             },
             setMouseDownToFalse = (event) => {
-              event.preventDefault();
               isMouseDown = false;
             };
 
@@ -269,7 +267,6 @@
           }
 
           function colorPixelOnMouseMove(event) {
-            event.preventDefault();
             if (isMouseDown) {
               const { top, left } = CANVAS_HANDLER.positionInsideTheViewport;
 
