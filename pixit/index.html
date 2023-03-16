@@ -214,10 +214,22 @@
             STATE_SELECTED_COLOR = stateSelectedColour();
 
           window.addEventListener("resize", function () {
+            const prevDimensions = {
+              width: CANVAS_HANDLER.canvas.width,
+              height: CANVAS_HANDLER.canvas.height,
+            };
+
             CANVAS_HANDLER.setCanvasDimensionsWithWindow();
-            CANVAS_HANDLER.drawPixelsGrid(
-              STATE_PIXEL_DIMENSIONS.getDimensionsObject()
-            );
+
+            if (
+              CANVAS_HANDLER.canvas.width != prevDimensions.width ||
+              CANVAS_HANDLER.canvas.height != prevDimensions.height
+            ) {
+              CANVAS_HANDLER.drawPixelsGrid(
+                STATE_PIXEL_DIMENSIONS.getDimensionsObject()
+              );
+              redrawPixels();
+            }
           });
 
           CANVAS_HANDLER.drawPixelsGrid(
