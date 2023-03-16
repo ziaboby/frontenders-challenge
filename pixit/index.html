@@ -314,15 +314,21 @@
             const method = ["removeEventListener", "addEventListener"][type];
 
             ["mousedown", "touchstart"].forEach((eventName) => {
-              CANVAS_HANDLER.canvas[method](eventName, setMouseDownToTrue);
+              CANVAS_HANDLER.canvas[method](eventName, setMouseDownToTrue, {
+                passive: true,
+              });
             });
 
             ["mousemove", "touchmove"].forEach((eventName) => {
-              CANVAS_HANDLER.canvas[method](eventName, colorPixelOnMouseMove);
+              CANVAS_HANDLER.canvas[method](eventName, colorPixelOnMouseMove, {
+                passive: true,
+              });
             });
 
             ["mouseup", "touchend"].forEach((eventName) => {
-              CANVAS_HANDLER.canvas[method](eventName, setMouseDownToFalse);
+              CANVAS_HANDLER.canvas[method](eventName, setMouseDownToFalse, {
+                passive: true,
+              });
             });
           }
 
