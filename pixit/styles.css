@@ -1,0 +1,90 @@
+html {
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: #eee;
+  margin: 0;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 1.5rem;
+  background-color: #fff;
+}
+
+main {
+  padding: 1.5rem;
+}
+
+button {
+  background-color: #ccc;
+  border: none;
+  border-radius: 5px;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.controller-number > label {
+  display: inline-flex;
+}
+
+.controller-number > label:first-child {
+  margin-right: 2rem;
+}
+
+.controller-number input {
+  margin-left: 1rem;
+}
+
+.color-palette {
+  align-items: center;
+  background-color: #fff;
+  border-radius: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+}
+
+.btn-color {
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  height: 1rem;
+  width: 1rem;
+  padding: 0;
+  margin: 0.3rem;
+}
+
+.btn-color.selected {
+  border-style: dotted;
+  border-width: 5px;
+  pointer-events: none;
+}
+
+.container {
+  height: 70vh;
+  margin: 0 auto;
+  width: 90vw;
+  position: relative;
+}
+
+canvas {
+  border: 1px solid black;
+}
+
+.download {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
