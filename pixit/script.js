@@ -4,7 +4,7 @@ import statePixelsDimensions from "./src/state/statePixelsDimensions.js";
 import stateDrawnPixels from "./src/state/stateDrawnPixels.js";
 import stateSelectedColor from "./src/state/stateSelectedColor.js";
 import CanvasStateUpdateHandlers from "./src/helpers/canvasStateUpdateHandlers.js";
-import EventsHandlers from "./src/helpers/eventsHandlers.JS";
+import EventsHandlers from "./src/helpers/eventsHandlers.js";
 
 (function (container, canvasHandler) {
   initColorPalette(document.getElementById("palette"), "btn-color");
