@@ -50,30 +50,26 @@ CanvasStateUpdateHandlers.prototype.addRemoveCanvasEventsListener = function (
   ["mousedown", "touchstart"].forEach((eventName) => {
     this.canvasHandler.canvas[method](
       eventName,
-      this.eventsHandlers.setMouseDownToTrue,
-      {
-        passive: true,
-      }
+      this.eventsHandlers.setMouseDownToTrue
     );
   });
 
   ["mousemove", "touchmove"].forEach((eventName) => {
     this.canvasHandler.canvas[method](
       eventName,
-      this.eventsHandlers.colorPixelOnMouseMove,
-      {
-        passive: true,
-      }
+      this.eventsHandlers.colorPixelOnMouseMove
     );
   });
 
   ["mouseup", "touchend"].forEach((eventName) => {
     this.canvasHandler.canvas[method](
       eventName,
-      this.eventsHandlers.setMouseDownToFalse,
-      {
-        passive: true,
-      }
+      this.eventsHandlers.setMouseDownToFalse
     );
   });
+
+  this.canvasHandler.canvas[method](
+    "touchcancel",
+    this.eventsHandlers.setMouseDownToFalse
+  );
 };

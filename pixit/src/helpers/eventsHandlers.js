@@ -4,12 +4,18 @@ export default function EventsHandlers(state, canvasHandler, utils) {
     latestClientY = undefined;
 
   return {
-    setMouseDownToTrue: () => {
+    setMouseDownToTrue: (event) => {
+      (event.cancelable === undefined || event.cancelable) &&
+        event.preventDefault();
       isMouseDown = true;
     },
 
-    setMouseDownToFalse: () => {
-      isMouseDown = false;
+    setMouseDownToFalse: (event) => {
+      if (isMouseDown) {
+        (event.cancelable === undefined || event.cancelable) &&
+          event.preventDefault();
+        isMouseDown = false;
+      }
     },
 
     changeDimensionsHandler: (event) => {
@@ -68,6 +74,8 @@ export default function EventsHandlers(state, canvasHandler, utils) {
 
     colorPixelOnMouseMove: (event) => {
       if (isMouseDown) {
+        event.preventDefault();
+
         const { top, left } = canvasHandler.positionInsideTheViewport;
 
         const eventX = event.changedTouches
