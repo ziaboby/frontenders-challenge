@@ -71,4 +71,19 @@ CanvasStateUpdateHandlers.prototype.addRemoveCanvasEventsListener = function (
     "touchcancel",
     this.eventsHandlers.setMouseDownToFalse
   );
+
+  this.canvasHandler.canvas[method](
+    "keydown",
+    this.eventsHandlers.keydownToMoveInTheCanvas
+  );
+
+  this.canvasHandler.canvas[method](
+    "focus",
+    this.eventsHandlers.focusFirstPixel
+  );
+
+  this.canvasHandler.canvas[method](
+    "blur",
+    this.canvasHandler.onCanvasBlur.bind(this.canvasHandler)
+  );
 };

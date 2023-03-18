@@ -51,5 +51,6 @@ import EventsHandlers from "./src/helpers/eventsHandlers.js";
     document
       .getElementById("download")
       .addEventListener("click", eventsHandlers.clickDownload);
+    document.addEventListener("keydown", eventsHandlers.focusCanvas);
   }
 })(document.getElementById("canvas-container"), canvasHandler());

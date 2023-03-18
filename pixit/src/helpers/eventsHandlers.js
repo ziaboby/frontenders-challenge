@@ -1,7 +1,10 @@
+import { getCanvasCoordinatesFromPixel } from "../utils.js";
+
 export default function EventsHandlers(state, canvasHandler, utils) {
   let isMouseDown = false,
     latestClientX = undefined,
-    latestClientY = undefined;
+    latestClientY = undefined,
+    drawingByKeyboard = false;
 
   return {
     setMouseDownToTrue: (event) => {
@@ -107,6 +110,71 @@ export default function EventsHandlers(state, canvasHandler, utils) {
             color: state.selected_color.color,
           });
         }
+      }
+    },
+
+    focusFirstPixel: () => {
+      canvasHandler.createFocusedPixel(
+        [0, 0],
+        state.pixel_dimensions.dimensions
+      );
+    },
+
+    /**
+     *
+     * @param {KeyboardEvent} event
+     */
+    keydownToMoveInTheCanvas: (event) => {
+      if (
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)
+      ) {
+        event.preventDefault();
+        const pixelCoordinates = canvasHandler.getNextPixelByKeyboard(
+          event.key
+        );
+        if (drawingByKeyboard) {
+          canvasHandler.updateFocusedPixel(pixelCoordinates);
+          const coordinates = getCanvasCoordinatesFromPixel(
+            state.pixel_dimensions.dimensions,
+            pixelCoordinates
+          );
+          canvasHandler.colorPixel(
+            coordinates,
+            state.pixel_dimensions.dimensions,
+            state.selected_color.color
+          );
+        } else {
+          canvasHandler.createFocusedPixel(
+            pixelCoordinates,
+            state.pixel_dimensions.dimensions
+          );
+        }
+      } else if ("Enter" == event.key) {
+        event.preventDefault();
+        const coordinates = getCanvasCoordinatesFromPixel(
+          state.pixel_dimensions.dimensions,
+          canvasHandler.getNextPixelByKeyboard(event.key)
+        );
+        canvasHandler.colorPixel(
+          coordinates,
+          state.pixel_dimensions.dimensions,
+          state.selected_color.color
+        );
+        drawingByKeyboard = true;
+      } else if ("Delete" == event.key) {
+        event.preventDefault();
+        drawingByKeyboard = false;
+      }
+    },
+
+    /**
+     *
+     * @param {KeyboardEvent} event
+     */
+    focusCanvas: (event) => {
+      if (event.key == "d" && event.ctrlKey) {
+        event.preventDefault();
+        canvasHandler.canvas.focus();
       }
     },
   };

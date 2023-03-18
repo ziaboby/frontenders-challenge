@@ -9,7 +9,12 @@ import {
  */
 
 export default function () {
-  let _canvasNode, _canvasPositionInsideTheViewport, _container;
+  let _canvasNode,
+    _canvasPositionInsideTheViewport,
+    _container,
+    _gridCanvasNode,
+    _focusCanvas,
+    _focusedPixelCoordinates = [0, 0];
 
   function _updateCanvasPositionInsideTheViewport() {
     const { top, left } = _canvasNode.getBoundingClientRect();
@@ -24,18 +29,15 @@ export default function () {
     },
 
     createCanvas() {
-      const id = "pixit";
-      let prevCanvas;
-
-      if ((prevCanvas = document.getElementById(id))) {
-        _canvasNode = null;
-        _container.removeChild(prevCanvas);
+      if (_canvasNode) {
+        _container.removeChild(_canvasNode);
       }
 
       _canvasNode = document.createElement("canvas");
-      _canvasNode.id = id;
+      _canvasNode.id = "pixit";
       _canvasNode.innerText = "This is the are where you can draw";
       this.context.fillStyle = "#ffffff";
+      _canvasNode.tabIndex = 0;
 
       _container.appendChild(_canvasNode);
 
@@ -62,15 +64,12 @@ export default function () {
      * @param {PixelDimension} pixelDimension
      * */
     drawPixelsGrid(pixelDimension) {
-      const id = "pixit-grid";
-      let prevCanvas;
-
-      if ((prevCanvas = document.getElementById(id))) {
-        _container.removeChild(prevCanvas);
+      if (_gridCanvasNode) {
+        _container.removeChild(_gridCanvasNode);
       }
 
-      let _gridCanvasNode = document.createElement("canvas");
-      _gridCanvasNode.id = id;
+      _gridCanvasNode = document.createElement("canvas");
+      _gridCanvasNode.id = "pixit-grid";
       _gridCanvasNode.innerText =
         "This is the grid of the area where you can draw";
       _gridCanvasNode.width = this.canvas.width;
@@ -81,9 +80,11 @@ export default function () {
       _gridCanvasNode.style.left = 0;
       _gridCanvasNode.style.bottom = 0;
       _gridCanvasNode.style.right = 0;
-      _container.appendChild(_gridCanvasNode);
 
       const context = _gridCanvasNode.getContext("2d");
+
+      context.fillStyle = "#ffffff";
+      _container.appendChild(_gridCanvasNode);
 
       drawGridLine({
         context,
@@ -102,6 +103,8 @@ export default function () {
 
       context.strokeStyle = "#ccc";
       context.stroke();
+
+      this.createFocusCanvas();
     },
 
     setCanvasDimensionsWithContainer() {
@@ -139,6 +142,81 @@ export default function () {
 
     imageURL() {
       return this.canvas.toDataURL("image/png");
+    },
+
+    createFocusCanvas() {
+      const id = "canvas-focus";
+      let prevCanvas;
+
+      if ((prevCanvas = document.getElementById(id))) {
+        _focusCanvas = null;
+        _container.removeChild(prevCanvas);
+      }
+
+      _focusCanvas = _gridCanvasNode.cloneNode(true);
+      _focusCanvas.id = id;
+      _focusCanvas.innerText =
+        "Here you can draw, you can move in the grid by pressing any arrow keys, press Enter to start drawing and Canc/Delete to stop";
+
+      _container.appendChild(_focusCanvas);
+    },
+
+    /**
+     *
+     * @param {"ArrowUp" | "ArrowRight" | "ArrowDown" | "ArrowLeft"} direction - where to move the pixel
+     */
+    getNextPixelByKeyboard(direction) {
+      let [x, y] = _focusedPixelCoordinates;
+      if (direction == "ArrowLeft" || direction == "ArrowRight") {
+        const updated =
+          _focusedPixelCoordinates[0] + (direction == "ArrowRight" ? 1 : -1);
+        x = updated > 0 ? updated : x;
+      }
+      if (direction == "ArrowDown" || direction == "ArrowUp") {
+        const updated =
+          _focusedPixelCoordinates[1] + (direction == "ArrowDown" ? 1 : -1);
+        y = updated > 0 ? updated : y;
+      }
+      return [x, y];
+    },
+
+    /**
+     *
+     * @param {Coordinates} pixelCoordinates
+     */
+    updateFocusedPixel(pixelCoordinates) {
+      _focusedPixelCoordinates = [...pixelCoordinates];
+    },
+
+    /**
+     *
+     * @param {Coordinates} pixelCoordinates
+     * @param {PixelDimension} pixelDimension
+     */
+    createFocusedPixel(pixelCoordinates, pixelDimension) {
+      this.createFocusCanvas();
+      const canvasPointCoordinates = getCanvasCoordinatesFromPixel(
+          pixelDimension,
+          pixelCoordinates
+        ),
+        context = _focusCanvas.getContext("2d");
+
+      context.beginPath();
+      context.lineWidth = "1";
+      context.fillStyle = "#333";
+      context.rect(
+        canvasPointCoordinates[0],
+        canvasPointCoordinates[1],
+        pixelDimension.width,
+        pixelDimension.height
+      );
+      context.stroke();
+      this.updateFocusedPixel(pixelCoordinates);
+    },
+
+    onCanvasBlur() {
+      _focusedPixelCoordinates = [0, 0];
+      this.createFocusCanvas();
     },
   };
 }
