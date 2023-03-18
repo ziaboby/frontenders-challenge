@@ -14,7 +14,7 @@ CanvasStateUpdateHandlers.prototype.setColorOfFirstPaletteElement =
   function () {
     const firstColorPalette = document.querySelector(".btn-color"),
       firstColor = firstColorPalette.dataset.color;
-    firstColorPalette.setAttribute("aria-selected", true);
+    firstColorPalette.setAttribute("aria-pressed", true);
     this.state.selected_color.color = firstColor;
   };
 

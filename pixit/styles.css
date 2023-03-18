@@ -131,7 +131,7 @@ header > button {
   margin: 0.3rem;
 }
 
-.btn-color[aria-selected="true"] {
+.btn-color[aria-pressed="true"] {
   border-style: dotted;
   border-width: 5px;
   pointer-events: none;

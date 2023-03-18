@@ -35,9 +35,10 @@ export default function () {
 
       _canvasNode = document.createElement("canvas");
       _canvasNode.id = "pixit";
-      _canvasNode.innerText = "This is the are where you can draw";
       this.context.fillStyle = "#ffffff";
       _canvasNode.tabIndex = 0;
+      _canvasNode.role = "button";
+      _canvasNode.ariaLabel = "Draw in this area";
 
       _container.appendChild(_canvasNode);
 
