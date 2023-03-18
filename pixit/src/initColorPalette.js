@@ -55,11 +55,13 @@ export default function initColorPalette(container, className) {
 
   colors.forEach((color) => {
     const button = document.createElement("button");
+    const li = document.createElement("li");
     button.type = "button";
     button.className = className;
     button.style.backgroundColor = color;
     button.dataset.color = color;
     button.ariaLabel = button.title = `Select color ${color}`;
-    container.append(button);
+    li.append(button);
+    container.append(li);
   });
 }

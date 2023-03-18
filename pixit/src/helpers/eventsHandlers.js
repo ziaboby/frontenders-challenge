@@ -40,10 +40,10 @@ export default function EventsHandlers(state, canvasHandler, utils) {
 
     clickColorBtn: (event) => {
       document
-        .querySelector(".btn-color.selected")
-        .classList.remove("selected");
+        .querySelector('.btn-color[aria-selected="true"]')
+        .setAttribute("aria-selected", false);
 
-      event.target.classList.add("selected");
+      event.target.setAttribute("aria-selected", true);
       state.selected_color.color = event.target.dataset.color;
     },
 

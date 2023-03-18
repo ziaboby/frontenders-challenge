@@ -13,7 +13,7 @@
     <header>
       <h1>PIXIT</h1>
       <div class="controller-number">
-        <label for="width">
+        <label for="width" aria-describedby="width-desc">
           Width
           <input
             type="number"
@@ -24,7 +24,7 @@
             value="10"
           />
         </label>
-        <label for="height">
+        <label for="height" aria-describedby="height-desc">
           Height
           <input
             type="number"
@@ -35,11 +35,32 @@
             value="10"
           />
         </label>
+        <div id="width-desc" class="sr-only">
+          Width of the pixel inside the canvas. The max supported value is 100
+        </div>
+        <div id="height-desc" class="sr-only">
+          Height of the pixel inside the canvas. The max supported value is 100
+        </div>
       </div>
-      <button type="button" id="reset">reset</button>
+      <button type="button" id="reset" aria-describedby="reset-desc">
+        reset
+      </button>
+      <div id="reset-desc" class="sr-only">
+        By clicking this button you would reset everything to the original
+        state, like a page refresh.
+      </div>
     </header>
     <main>
-      <section id="palette" class="color-palette"></section>
+      <section>
+        <div id="color-palette-desc" class="sr-only">
+          Here is a list of colors you can choose to draw in the canvas.
+        </div>
+        <ol
+          id="palette"
+          class="color-palette"
+          aria-describedby="color-palette-desc"
+        ></ol>
+      </section>
       <section id="canvas-container" class="container"></section>
       <section class="download">
         <button type="button" id="download">Download drawing as image</button>
