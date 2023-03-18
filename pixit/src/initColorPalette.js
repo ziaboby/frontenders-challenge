@@ -64,4 +64,41 @@ export default function initColorPalette(container, className) {
     li.append(button);
     container.append(li);
   });
+
+  let waitingForNumberKeyboard = false,
+    number = "";
+
+  /**
+   * Cb to handler keydown event
+   * @param {KeyboardEvent} event
+   */
+  const keyDownListener = (event) => {
+      if (event.ctrlKey) {
+        if (event.key === "c" && !waitingForNumberKeyboard) {
+          event.preventDefault();
+          waitingForNumberKeyboard = true;
+        }
+        if (waitingForNumberKeyboard && !isNaN(event.key)) {
+          event.preventDefault();
+          number = `${number}${event.key}`;
+        }
+      }
+    },
+    /**
+     * Cb to handler keyup event
+     * @param {KeyboardEvent} event
+     */
+    keyUpListener = (event) => {
+      if (waitingForNumberKeyboard && event.key === "Control") {
+        const button = container.querySelector(
+          `li:nth-child(${number}) > .${className}`
+        );
+        event.preventDefault();
+        waitingForNumberKeyboard = false;
+        number = "";
+        button && button.click();
+      }
+    };
+  document.addEventListener("keydown", keyDownListener);
+  document.addEventListener("keyup", keyUpListener);
 }
