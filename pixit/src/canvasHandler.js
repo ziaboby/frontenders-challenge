@@ -170,12 +170,12 @@ export default function () {
       if (direction == "ArrowLeft" || direction == "ArrowRight") {
         const updated =
           _focusedPixelCoordinates[0] + (direction == "ArrowRight" ? 1 : -1);
-        x = updated > 0 ? updated : x;
+        x = updated >= 0 ? updated : x;
       }
       if (direction == "ArrowDown" || direction == "ArrowUp") {
         const updated =
           _focusedPixelCoordinates[1] + (direction == "ArrowDown" ? 1 : -1);
-        y = updated > 0 ? updated : y;
+        y = updated >= 0 ? updated : y;
       }
       return [x, y];
     },
