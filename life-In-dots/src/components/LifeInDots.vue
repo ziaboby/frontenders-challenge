@@ -32,7 +32,7 @@ export default defineComponent({
     <form action="" method="get" @submit="false">
       <div class="date-birth__container">
         <label for="date-birth">
-          Insert your date of birth
+          <span class="sr-only">Insert your date of birth</span>
           <input
             id="type"
             name="type"
@@ -44,7 +44,7 @@ export default defineComponent({
       </div>
       <div class="type__container">
         <label for="type">
-          Your life in
+          <span class="sr-only">See</span> your life in
           <select id="type" name="type" @change="setType">
             <option value="years">Years</option>
             <option value="months">Months</option>
