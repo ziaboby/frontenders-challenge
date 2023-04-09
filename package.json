@@ -1,0 +1,14 @@
+{
+  "name": "frontenders-challenge",
+  "version": "1.0.0",
+  "description": "just for scripts",
+  "scripts": {
+    "build": "rm -rf build && mkdir build && cp index.html ./build && cp -R ./pixit ./build && cd ./life-In-dots && pnpm run build && cp -R dist ../build/life-in-dots",
+    "deploy": "gh-pages -b build -d build -m \"New version deployed\""
+  },
+  "author": "CMM",
+  "license": "MIT",
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
+}
