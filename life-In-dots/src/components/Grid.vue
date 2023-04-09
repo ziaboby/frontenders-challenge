@@ -47,9 +47,8 @@ export default {
 
 <style scoped>
 .grid__container {
-  margin: 0 auto;
   margin-top: 1rem;
-  max-width: 70%;
+  max-width: 100%;
 }
 
 .grid {
@@ -86,6 +85,16 @@ export default {
     white 10%,
     white 20%
   ); */
-  background-color: #666;
+  background-color: #700000;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cell {
+    border: 1px solid #666;
+  }
+
+  .cell.selected {
+    background-color: #eb6e6e;
+  }
 }
 </style>
