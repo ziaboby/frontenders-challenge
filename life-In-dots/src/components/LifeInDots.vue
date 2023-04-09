@@ -38,8 +38,8 @@ export default defineComponent({
         <label for="date-birth">
           <span class="sr-only">Insert your date of birth</span>
           <input
-            id="type"
-            name="type"
+            id="date-birth"
+            name="date-birth"
             type="date"
             :max="sToday"
             @change="setDate"
