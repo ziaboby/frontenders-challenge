@@ -1,13 +1,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
-
-type GridType = "years" | "weeks" | "months";
+import Grid from "./Grid.vue";
 
 export default defineComponent({
   data() {
     return {
+      age: 0,
       sToday: new Date().toISOString().substring(0, 10),
-      date: new Date(),
       type: "years",
     };
   },
@@ -18,9 +17,14 @@ export default defineComponent({
     },
     setDate(event: Event) {
       const value = (<HTMLInputElement>event.target)?.valueAsDate;
-      if (value) this.date = value;
+      if (value) {
+        const ageInMs = Date.now() - value.getTime(),
+          msInYear = 365 * 24 * 60 * 60 * 1000;
+        this.age = Math.floor(ageInMs / msInYear);
+      }
     },
   },
+  components: { Grid },
 });
 </script>
 
@@ -54,6 +58,11 @@ export default defineComponent({
       </div>
     </form>
   </section>
+  <Grid v-if="age" :type="type" :age="age" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.type__container {
+  margin-top: 0.5rem;
+}
+</style>
